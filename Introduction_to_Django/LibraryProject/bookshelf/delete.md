@@ -4,10 +4,10 @@
 from bookshelf.models import Book
 
 # Get the book
-b = Book.objects.get(title="Nineteen Eighty-Four")
+book = Book.objects.get(title="Nineteen Eighty-Four")
 
 # Delete the book
-b.delete()
+book.delete()
 # Output: (1, {'bookshelf.Book': 1})
 
 # Confirm deletion
