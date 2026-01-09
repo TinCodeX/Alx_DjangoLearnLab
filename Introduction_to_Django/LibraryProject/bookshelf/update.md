@@ -4,13 +4,13 @@
 from bookshelf.models import Book
 
 # Get the book
-b = Book.objects.get(title="1984")
+book = Book.objects.get(title="1984")
 
 # Update the title
-b.title = "Nineteen Eighty-Four"
-b.save()
+book.title = "Nineteen Eighty-Four"
+book.save()
 
 # Confirm the update
-Book.objects.get(id=b.id)
+Book.objects.get(id=book.id)
 # Output: <Book: Nineteen Eighty-Four by George Orwell (1949)>
 ```
