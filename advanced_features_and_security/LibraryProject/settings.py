@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     
     # Custom apps
     'users',
-      'bookshelf',
+ 'LibraryProject.bookshelf',
     'relationship_app',  # Our custom user app
 ]
 
