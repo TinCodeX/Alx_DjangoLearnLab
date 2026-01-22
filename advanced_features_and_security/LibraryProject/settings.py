@@ -36,7 +36,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # Custom apps
-    'users',  # Our custom user app
+    'users',
+      'bookshelf',
+    'relationship_app',  # Our custom user app
 ]
 
 MIDDLEWARE = [
