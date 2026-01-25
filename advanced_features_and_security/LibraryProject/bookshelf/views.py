@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import permission_required
 from .models import Book
-from .forms import BookForm
+from .forms import BookForm, ExampleForm
 
 # List books with safe search (avoid SQL injection)
 @permission_required("bookshelf.can_view", raise_exception=True)
@@ -46,6 +46,16 @@ def book_delete(request, pk):
         book.delete()
         return redirect("book_list")
     return render(request, "bookshelf/book_confirm_delete.html", {"book": book})
+def example_form_view(request):
+    if request.method == "POST":
+        form = ExampleForm(request.POST)
+        if form.is_valid():
+            # For demo purposes, just redirect to a success page or reload
+            return redirect("example_form")
+    else:
+        form = ExampleForm()
+    return render(request, "bookshelf/form_example.html", {"form": form})
+
 # settings.py
 # DEBUG=False to avoid sensitive info leaks
 # SECURE_BROWSER_XSS_FILTER=True: enables XSS filter in browsers
