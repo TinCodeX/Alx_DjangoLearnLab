@@ -114,12 +114,12 @@ AUTH_USER_MODEL = "bookshelf.CustomUser"
 # SECURITY SETTINGS
 # ----------------------
 # Force all requests to HTTPS
-SECURE_SSL_REDIRECT = True  # Redirect HTTP requests to HTTPS
+SECURE_SSL_REDIRECT = True
 
 # HTTP Strict Transport Security (HSTS)
-SECURE_HSTS_SECONDS = 31536000  # One year in seconds
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Include all subdomains
-SECURE_HSTS_PRELOAD = True  # Preload in browsers
+SECURE_HSTS_SECONDS = 31536000  # One year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
 # Cookies sent only over HTTPS
 SESSION_COOKIE_SECURE = True
@@ -133,6 +133,9 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # Prevent clickjacking
 X_FRAME_OPTIONS = 'DENY'
+
+# Trust the 'X-Forwarded-Proto' header from a proxy for HTTPS
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # ----------------------
 # CONTENT SECURITY POLICY (CSP)
@@ -153,4 +156,5 @@ CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
 # SECURE_BROWSER_XSS_FILTER enables XSS filtering in browsers
 # SECURE_CONTENT_TYPE_NOSNIFF prevents MIME sniffing
 # X_FRAME_OPTIONS prevents clickjacking
+# SECURE_PROXY_SSL_HEADER trusts proxy headers for HTTPS detection
 # CSP directives restrict allowed sources for scripts, styles, images, and fonts
