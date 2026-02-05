@@ -16,12 +16,14 @@ class BookListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
+        """
+        Optionally filter books by publication_year using query parameters.
+        Example: /api/books/?year=2022
+        """
         queryset = Book.objects.all()
-        year = self.request.query_params.get('year')  # Optional filter
-
+        year = self.request.query_params.get('year')
         if year:
             queryset = queryset.filter(publication_year=year)
-
         return queryset
 
 
