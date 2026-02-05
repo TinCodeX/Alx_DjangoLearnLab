@@ -7,12 +7,6 @@ class BookListView(generics.ListAPIView):
     serializer_class = BookSerializer
     permission_classes = [permissions.AllowAny]
 
-    def get_queryset(self):
-        year = self.request.query_params.get('year')
-        if year:
-            return Book.objects.filter(publication_year=year)
-        return Book.objects.all()
-
 class BookDetailView(generics.RetrieveAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
