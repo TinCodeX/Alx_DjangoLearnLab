@@ -16,10 +16,6 @@ class BookListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
-        """
-        Optionally filter books by publication_year using query parameters.
-        Example: /api/books/?year=2022
-        """
         queryset = Book.objects.all()
         year = self.request.query_params.get('year')
         if year:
@@ -56,14 +52,4 @@ class BookUpdateView(generics.UpdateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class BookDeleteView(generics.DestroyAPIView):
-    """
-    Delete a book.
-    Restricted to authenticated users only.
-    """
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]()_
