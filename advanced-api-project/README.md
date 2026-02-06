@@ -24,3 +24,12 @@ through custom serializers.
 4. Create a superuser: `python manage.py createsuperuser`.
 5. Start server: `python manage.py runserver`.
 6. Access API at `http://127.0.0.1:8000/api/books/`.
+## Testing
+
+Unit tests were written using Django REST Framework’s APITestCase.
+The tests cover CRUD operations, permissions, and filtering/searching/ordering.
+
+To run the tests:
+
+```bash
+python manage.py test api
