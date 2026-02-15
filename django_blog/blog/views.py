@@ -10,12 +10,16 @@ from taggit.models import Tag
 from .models import Post, Comment
 from .forms import UserRegisterForm, UserUpdateForm, PostForm, CommentForm
 
+# ----------------------------
 # Home
+# ----------------------------
 def home(request):
     posts = Post.objects.all().order_by('-published_date')
     return render(request, 'blog/home.html', {'posts': posts})
 
-# Register
+# ----------------------------
+# Authentication
+# ----------------------------
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
@@ -27,7 +31,6 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'blog/register.html', {'form': form})
 
-# Profile
 @login_required
 def profile(request):
     if request.method == 'POST':
@@ -40,14 +43,13 @@ def profile(request):
         form = UserUpdateForm(instance=request.user)
     return render(request, 'blog/profile.html', {'form': form})
 
-# Logout
 def logout_view(request):
     from django.contrib.auth import logout
     logout(request)
     return render(request, 'blog/logout.html')
 
 # ----------------------------
-# POST CRUD
+# Post CRUD
 # ----------------------------
 class PostListView(ListView):
     model = Post
@@ -91,7 +93,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return self.request.user == post.author
 
 # ----------------------------
-# COMMENT CRUD
+# Comment CRUD
 # ----------------------------
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
@@ -124,15 +126,21 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return self.request.user == comment.author
 
 # ----------------------------
-# TAG & SEARCH
+# Tag & Search
 # ----------------------------
-def posts_by_tag(request, tag_name):
-    posts = Post.objects.filter(tags__name__in=[tag_name])
-    return render(request, 'blog/post_list.html', {'posts': posts, 'tag_name': tag_name})
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        return Post.objects.filter(tags__slug=self.kwargs['tag_slug'])
 
 def search_posts(request):
     query = request.GET.get('q')
     posts = Post.objects.filter(
-        Q(title__icontains=query) | Q(content__icontains=query) | Q(tags__name__icontains=query)
+        Q(title__icontains=query) |
+        Q(content__icontains=query) |
+        Q(tags__name__icontains=query)
     ).distinct()
     return render(request, 'blog/search_results.html', {'posts': posts, 'query': query})
