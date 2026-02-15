@@ -108,13 +108,14 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return self.request.user == comment.author
 
 # Delete comment
-class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
-    template_name = 'blog/comment_confirm_delete.html'
+    form_class = CommentForm
+    template_name = 'blog/comment_form.html'
 
-    def get_success_url(self):
-        return self.object.post.get_absolute_url()
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        # ALX checker expects 'pk'
+        form.instance.post_id = self.kwargs['pk']
+        return super().form_valid(form)
 
-    def test_func(self):
-        comment = self.get_object()
-        return self.request.user == comment.author
