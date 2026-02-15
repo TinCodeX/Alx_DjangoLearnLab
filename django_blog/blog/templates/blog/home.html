@@ -9,4 +9,9 @@
     {% empty %}
         <p>No posts yet.</p>
     {% endfor %}
+    <form method="GET" action="/search/">
+    <input type="text" name="q" placeholder="Search posts..." required>
+    <button type="submit">Search</button>
+</form>
+
 {% endblock %}

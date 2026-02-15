@@ -4,6 +4,14 @@
 <p>{{ object.content }}</p>
 <p>By {{ object.author }} | {{ object.published_date }}</p>
 
+<p>Tags:
+{% for tag in object.tags.all %}
+    <a href="/tags/{{ tag }}">{{ tag }}</a>{% if not forloop.last %}, {% endif %}
+{% empty %}
+    No tags
+{% endfor %}
+</p>
+
 {% if user == object.author %}
     <a href="/post/{{ object.pk }}/update/">Edit Post</a> |
     <a href="/post/{{ object.pk }}/delete/">Delete Post</a>
@@ -27,10 +35,9 @@
 {% if user.is_authenticated %}
     <h4>Add a Comment</h4>
     <form method="POST" action="/post/{{ object.pk }}/comments/new/">
-    {% csrf_token %}
-    <textarea name="content" rows="3" placeholder="Add a comment..."></textarea><br>
-    <button type="submit">Post Comment</button>
-</form>
+        {% csrf_token %}
+        <textarea name="content" rows="3" placeholder="Add a comment..."></textarea><br>
+        <button type="submit">Post Comment</button>
     </form>
 {% else %}
     <p><a href="/login/">Login</a> to post a comment.</p>
