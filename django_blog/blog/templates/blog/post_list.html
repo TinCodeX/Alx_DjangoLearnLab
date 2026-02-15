@@ -1,0 +1,13 @@
+{% extends 'blog/base.html' %}
+{% block content %}
+<h2>All Posts</h2>
+<a href="/posts/new/">Create New Post</a>
+{% for post in posts %}
+    <h3><a href="/posts/{{ post.pk }}/">{{ post.title }}</a></h3>
+    <p>{{ post.content|truncatechars:100 }}</p>
+    <p>By {{ post.author }} | {{ post.published_date }}</p>
+    <hr>
+{% empty %}
+<p>No posts yet.</p>
+{% endfor %}
+{% endblock %}
