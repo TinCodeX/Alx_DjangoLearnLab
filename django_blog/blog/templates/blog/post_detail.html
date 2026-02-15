@@ -5,8 +5,35 @@
 <p>By {{ object.author }} | {{ object.published_date }}</p>
 
 {% if user == object.author %}
-    <a href="/posts/{{ object.pk }}/edit/">Edit</a> |
-    <a href="/posts/{{ object.pk }}/delete/">Delete</a>
+    <a href="/post/{{ object.pk }}/update/">Edit Post</a> |
+    <a href="/post/{{ object.pk }}/delete/">Delete Post</a>
 {% endif %}
+
+<hr>
+<h3>Comments</h3>
+
+{% for comment in object.comments.all %}
+    <p><strong>{{ comment.author.username }}</strong>: {{ comment.content }}</p>
+    <small>{{ comment.created_at|date:"M d, Y H:i" }}</small>
+    {% if user == comment.author %}
+        <a href="/comment/{{ comment.pk }}/update/">Edit</a> |
+        <a href="/comment/{{ comment.pk }}/delete/">Delete</a>
+    {% endif %}
+    <hr>
+{% empty %}
+<p>No comments yet.</p>
+{% endfor %}
+
+{% if user.is_authenticated %}
+    <h4>Add a Comment</h4>
+    <form method="POST" action="/post/{{ object.pk }}/comments/new/">
+        {% csrf_token %}
+        <textarea name="content" rows="3" placeholder="Add a comment..."></textarea><br>
+        <button type="submit">Post Comment</button>
+    </form>
+{% else %}
+    <p><a href="/login/">Login</a> to post a comment.</p>
+{% endif %}
+
 <a href="/posts/">Back to all posts</a>
 {% endblock %}
