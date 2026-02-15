@@ -4,17 +4,18 @@ from django.contrib import messages
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
-from .models import Post, Comment
-from .forms import UserRegisterForm, UserUpdateForm, PostForm, CommentForm
 from django.db.models import Q
 from taggit.models import Tag
+
+from .models import Post, Comment
+from .forms import UserRegisterForm, UserUpdateForm, PostForm, CommentForm
 
 # Home
 def home(request):
     posts = Post.objects.all().order_by('-published_date')
     return render(request, 'blog/home.html', {'posts': posts})
 
-# Authentication Views
+# Register
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
@@ -26,6 +27,7 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'blog/register.html', {'form': form})
 
+# Profile
 @login_required
 def profile(request):
     if request.method == 'POST':
@@ -38,11 +40,11 @@ def profile(request):
         form = UserUpdateForm(instance=request.user)
     return render(request, 'blog/profile.html', {'form': form})
 
+# Logout
 def logout_view(request):
     from django.contrib.auth import logout
     logout(request)
     return render(request, 'blog/logout.html')
-
 
 # ----------------------------
 # POST CRUD
@@ -88,7 +90,6 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         post = self.get_object()
         return self.request.user == post.author
 
-
 # ----------------------------
 # COMMENT CRUD
 # ----------------------------
@@ -121,11 +122,14 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         comment = self.get_object()
         return self.request.user == comment.author
-    def posts_by_tag(request, tag_name):
+
+# ----------------------------
+# TAG & SEARCH
+# ----------------------------
+def posts_by_tag(request, tag_name):
     posts = Post.objects.filter(tags__name__in=[tag_name])
     return render(request, 'blog/post_list.html', {'posts': posts, 'tag_name': tag_name})
 
-# Search view
 def search_posts(request):
     query = request.GET.get('q')
     posts = Post.objects.filter(
