@@ -4,8 +4,8 @@ from django.contrib import messages
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
-from .models import Post
-from .forms import UserRegisterForm, UserUpdateForm, PostForm
+from .models import Post, Comment
+from .forms import UserRegisterForm, UserUpdateForm, PostForm, CommentForm
 
 # Home
 def home(request):
@@ -41,7 +41,10 @@ def logout_view(request):
     logout(request)
     return render(request, 'blog/logout.html')
 
-# CRUD Views
+
+# ----------------------------
+# POST CRUD
+# ----------------------------
 class PostListView(ListView):
     model = Post
     template_name = 'blog/post_list.html'
@@ -82,11 +85,11 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import CreateView, UpdateView, DeleteView
-from .models import Comment
 
-# Create comment
+
+# ----------------------------
+# COMMENT CRUD
+# ----------------------------
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
     form_class = CommentForm
@@ -94,10 +97,9 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        form.instance.post_id = self.kwargs['post_id']
+        form.instance.post_id = self.kwargs['pk']  # ALX expects 'pk'
         return super().form_valid(form)
 
-# Update comment
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Comment
     form_class = CommentForm
@@ -107,15 +109,13 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         comment = self.get_object()
         return self.request.user == comment.author
 
-# Delete comment
-class CommentCreateView(LoginRequiredMixin, CreateView):
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
-    form_class = CommentForm
-    template_name = 'blog/comment_form.html'
+    template_name = 'blog/comment_confirm_delete.html'
 
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        # ALX checker expects 'pk'
-        form.instance.post_id = self.kwargs['pk']
-        return super().form_valid(form)
+    def get_success_url(self):
+        return self.object.post.get_absolute_url()
 
+    def test_func(self):
+        comment = self.get_object()
+        return self.request.user == comment.author
