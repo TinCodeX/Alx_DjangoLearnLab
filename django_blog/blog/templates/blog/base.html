@@ -6,10 +6,24 @@
 </head>
 <body>
 
-    <h1>Django Blog</h1>
-    <hr>
+<h1>Django Blog</h1>
 
-    {% block content %}{% endblock %}
+{% if user.is_authenticated %}
+    <p>
+        Welcome {{ user.username }} |
+        <a href="/profile/">Profile</a> |
+        <a href="/logout/">Logout</a>
+    </p>
+{% else %}
+    <p>
+        <a href="/login/">Login</a> |
+        <a href="/register/">Register</a>
+    </p>
+{% endif %}
+
+<hr>
+
+{% block content %}{% endblock %}
 
 </body>
 </html>
