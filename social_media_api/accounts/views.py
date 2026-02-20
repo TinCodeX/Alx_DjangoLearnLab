@@ -41,3 +41,9 @@ class ProfileView(APIView):
     def get(self, request):
         serializer = UserProfileSerializer(request.user)
         return Response(serializer.data)
+
+class HomeView(APIView):
+    permission_classes = []  
+
+    def get(self, request):
+        return Response({"message": "Welcome to the Social Media API!"})
