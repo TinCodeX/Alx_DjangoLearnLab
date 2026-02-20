@@ -57,3 +57,13 @@ class CommentViewSet(viewsets.ModelViewSet):
         if instance.author != self.request.user:
             raise permissions.PermissionDenied("You can only delete your own comments")
         instance.delete()
+
+class FeedView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        # Get posts from users the current user follows
+        followed_users = request.user.following.all()
+        feed_posts = Post.objects.filter(author__in=followed_users).order_by('-created_at')
+        serializer = PostSerializer(feed_posts, many=True)
+        return Response(serializer.data)
