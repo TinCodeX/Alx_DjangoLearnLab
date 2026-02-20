@@ -3,8 +3,11 @@ from django.shortcuts import render
 # Create your views here.
 from rest_framework import viewsets, permissions, filters
 from rest_framework.pagination import PageNumberPagination
-from .models import Post, Comment
+from .models import Post, Comment, Like
+from rest_framework import generics, status
+from rest_framework.response import Response
 from .serializers import PostSerializer, CommentSerializer
+from notifications.models import Notification
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
@@ -65,3 +68,40 @@ class FeedView(generics.ListAPIView):
     def get_queryset(self):
         following_users = self.request.user.following.all()
         return Post.objects.filter(author__in=following_users).order_by('-created_at')
+class LikePostView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        post = Post.objects.filter(pk=pk).first()
+        if not post:
+            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        like, created = Like.objects.get_or_create(post=post, user=request.user)
+        if not created:
+            return Response({"message": "You already liked this post"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create notification for the post author
+        if post.author != request.user:
+            Notification.objects.create(
+                recipient=post.author,
+                actor=request.user,
+                verb='liked your post',
+                target=post
+            )
+
+        return Response({"message": "Post liked"}, status=status.HTTP_201_CREATED)
+
+
+class UnlikePostView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        post = Post.objects.filter(pk=pk).first()
+        if not post:
+            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        deleted, _ = Like.objects.filter(post=post, user=request.user).delete()
+        if deleted == 0:
+            return Response({"message": "You have not liked this post"}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"message": "Post unliked"}, status=status.HTTP_200_OK)
