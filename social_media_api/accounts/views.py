@@ -46,4 +46,11 @@ class HomeView(APIView):
     permission_classes = []  
 
     def get(self, request):
-        return Response({"message": "Welcome to the Social Media API!"})
+        return Response({
+             "message": "Welcome to the Social Media API",
+            "endpoints": {
+                "register": "/api/accounts/register/",
+                "login": "/api/accounts/login/",
+                "profile": "/api/accounts/profile/"
+            }
+        })
