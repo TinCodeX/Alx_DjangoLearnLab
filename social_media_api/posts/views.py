@@ -6,6 +6,7 @@ from rest_framework.pagination import PageNumberPagination
 from .models import Post, Comment, Like
 from rest_framework import generics, status
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from .serializers import PostSerializer, CommentSerializer
 from notifications.models import Notification
 
@@ -72,15 +73,13 @@ class LikePostView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
-        post = Post.objects.filter(pk=pk).first()
-        if not post:
-            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+        post = get_object_or_404(Post, pk=pk)
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
 
-        like, created = Like.objects.get_or_create(post=post, user=request.user)
         if not created:
             return Response({"message": "You already liked this post"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Create notification for the post author
+        # Notification for the post author
         if post.author != request.user:
             Notification.objects.create(
                 recipient=post.author,
@@ -96,11 +95,9 @@ class UnlikePostView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
-        post = Post.objects.filter(pk=pk).first()
-        if not post:
-            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+        post = get_object_or_404(Post, pk=pk)
+        deleted, _ = Like.objects.filter(user=request.user, post=post).delete()
 
-        deleted, _ = Like.objects.filter(post=post, user=request.user).delete()
         if deleted == 0:
             return Response({"message": "You have not liked this post"}, status=status.HTTP_400_BAD_REQUEST)
 
