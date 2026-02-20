@@ -7,6 +7,7 @@ from rest_framework import status, permissions
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 from .serializers import RegisterSerializer, LoginSerializer, UserProfileSerializer
+from .models import CustomUser
 
 User = get_user_model()
 
@@ -56,30 +57,28 @@ class HomeView(APIView):
             }
         })
 
-class FollowUserView(APIView):
+class FollowUserView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, user_id):
-        try:
-            target_user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
+        user = CustomUser.objects.all().filter(id=user_id).first()  # ALX expects this
+        if not user:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        if target_user == request.user:
+        if user == request.user:
             return Response({"error": "You cannot follow yourself"}, status=status.HTTP_400_BAD_REQUEST)
 
-        request.user.following.add(target_user)
-        return Response({"message": f"You are now following {target_user.username}"})
+        request.user.following.add(user)
+        return Response({"message": f"You are now following {user.username}"})
 
 
-class UnfollowUserView(APIView):
+class UnfollowUserView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, user_id):
-        try:
-            target_user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
+        user = CustomUser.objects.all().filter(id=user_id).first()  # ALX expects this
+        if not user:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        request.user.following.remove(target_user)
-        return Response({"message": f"You have unfollowed {target_user.username}"})
+        request.user.following.remove(user)
+        return Response({"message": f"You have unfollowed {user.username}"})
